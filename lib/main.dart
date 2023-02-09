@@ -7,9 +7,14 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool? isLoggedVisit = prefs.getBool('isLoggedIn') ?? false;
+  bool? isCreatedVisit = prefs.getBool('isSignUp') ?? false;
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    initialRoute: (isLoggedVisit == false) ? '/' : 'logIn',
+    initialRoute: (isCreatedVisit == false)
+        ? '/'
+        : (isLoggedVisit == false)
+            ? 'logIn'
+            : 'homePage',
     routes: {
       '/': (context) => const MyApp(),
       'logIn': (context) => const LogIn(),
@@ -94,6 +99,23 @@ class _MyAppState extends State<MyApp> {
                 TextFormField(
                   validator: (val) {
                     if (val!.isEmpty) {
+                      return "Enter your user name..";
+                    }
+                    return null;
+                  },
+                  controller: Global.email2Controller,
+                  onSaved: (val) {
+                    setState(() {
+                      Global.email = Global.email2Controller.text;
+                    });
+                  },
+                  decoration: const InputDecoration(
+                      hintText: 'user Name',
+                      suffixIcon: Icon(Icons.person_outline)),
+                ),
+                TextFormField(
+                  validator: (val) {
+                    if (val!.isEmpty) {
                       return "Enter your password..";
                     }
                     return null;
@@ -104,9 +126,19 @@ class _MyAppState extends State<MyApp> {
                       Global.password = Global.passwordController.text;
                     });
                   },
-                  decoration: const InputDecoration(
+                  obscureText: (Global.isActive == false) ? true : false,
+                  decoration: InputDecoration(
                       hintText: 'password',
-                      suffixIcon: Icon(Icons.lock_outline)),
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            Global.isActive = !Global.isActive;
+                          });
+                        },
+                        icon: (Global.isActive == false)
+                            ? Icon(Icons.lock_outline)
+                            : Icon(Icons.lock_open),
+                      )),
                 ),
                 const SizedBox(
                   height: 50,
@@ -118,11 +150,14 @@ class _MyAppState extends State<MyApp> {
                   onPressed: () async {
                     SharedPreferences prefs =
                         await SharedPreferences.getInstance();
-
+                    await prefs.setBool('isSignUp', true);
                     await prefs.setString('email', Global.emailController.text);
                     await prefs.setString(
                         'password', Global.passwordController.text);
-                    Navigator.of(context).pushNamed('logIn');
+                    if (createKey.currentState!.validate()) {
+                      createKey.currentState!.save();
+                      Navigator.of(context).pushNamed('logIn');
+                    }
                   },
                   child: const Text("Sign Up"),
                 ),
@@ -156,6 +191,9 @@ class Global {
   static TextEditingController passwordController = TextEditingController();
   static TextEditingController userController = TextEditingController();
   static TextEditingController password2Controller = TextEditingController();
+  static TextEditingController email2Controller = TextEditingController();
   static String? email;
   static String? password;
+  static String? user;
+  static bool isActive = false;
 }

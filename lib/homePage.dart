@@ -64,7 +64,7 @@ class _HomePageState extends State<HomePage> {
                     padding: const EdgeInsets.symmetric(horizontal: 100),
                     backgroundColor: Colors.blue.shade900),
                 onPressed: () {},
-                child: Text("LogIn as  ${Global.userController.text}"),
+                child: Text("LogIn as  ${Global.user}"),
               ),
               const Spacer(),
               GestureDetector(

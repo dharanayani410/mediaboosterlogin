@@ -88,9 +88,19 @@ class _LogInState extends State<LogIn> {
                           obtainedPassword = Global.password2Controller.text;
                         });
                       },
-                      decoration: const InputDecoration(
+                      obscureText: (Global.isActive == false) ? true : false,
+                      decoration: InputDecoration(
                           hintText: 'password',
-                          suffixIcon: Icon(Icons.lock_outline)),
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                Global.isActive = !Global.isActive;
+                              });
+                            },
+                            icon: (Global.isActive == false)
+                                ? Icon(Icons.lock_outline)
+                                : Icon(Icons.lock_open),
+                          )),
                     ),
                     const SizedBox(
                       height: 50,
@@ -107,12 +117,14 @@ class _LogInState extends State<LogIn> {
                             SharedPreferences prefs =
                                 await SharedPreferences.getInstance();
                             await prefs.setBool('isLoggedIn', true);
+                            Navigator.of(context)
+                                .pushReplacementNamed('homePage');
+                          } else {
+                            Navigator.of(context).pushNamed('/');
                           }
-                          //else {
-                          //Navigator.of(context).pushNamed('/');
-                          // }
+                          Global.user = Global.userController.text;
+                          print(Global.user);
                         }
-                        Navigator.of(context).pushReplacementNamed('homePage');
                       },
                       child: const Text("Sign In"),
                     ),
